@@ -32,7 +32,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     mainWindow.delegate = mainWindowDelegate
     mainWindow.title = "SyphonWeb"
 
-    let mainView: NSHostingView<MainView> = NSHostingView(rootView: MainView())
+    let state: WebViewState = WebViewState()
+    let mainViewInst = MainView(state: state)
+    let mainView: NSHostingView<MainView> = NSHostingView(rootView: mainViewInst)
     mainView.frame = CGRect(origin: .zero, size: mainSize)
     mainView.autoresizingMask = [.height, .width]
     mainWindow.contentView!.addSubview(mainView)
@@ -47,7 +49,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     utilityWindow.delegate = utilityWindowDelegate
     utilityWindow.title = "Settings"
 
-    let utilityView: NSHostingView<UtilityView> = NSHostingView(rootView: UtilityView())
+    let utilityViewInst = UtilityView(onNavigate: { url in
+      mainViewInst.navigateTo(urlString: url)
+    })
+    
+    let utilityView: NSHostingView<UtilityView> = NSHostingView(rootView: utilityViewInst)
     utilityView.frame = CGRect(
       origin: .zero,
       size: utilitySize)
