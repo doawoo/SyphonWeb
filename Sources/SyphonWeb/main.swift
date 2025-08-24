@@ -1,6 +1,6 @@
 import AppKit
-import SwiftUI
 import MetalKit
+import SwiftUI
 import Syphon
 
 let metalDevice: MTLDevice = MTLCreateSystemDefaultDevice()!
@@ -9,37 +9,58 @@ let server: SyphonMetalServer = SyphonMetalServer.init(name: "SyphonWeb", device
 // AppKit Stuff
 class WindowDelegate: NSObject, NSWindowDelegate {
 
-    func windowWillClose(_ notification: Notification) {
-        NSApplication.shared.terminate(0)
-    }
+  func windowWillClose(_ notification: Notification) {
+    NSApplication.shared.terminate(0)
+  }
 }
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
-    let window: NSWindow = NSWindow()
-    let windowDelegate: WindowDelegate = WindowDelegate()
+  let mainWindow: NSWindow = NSWindow()
+  let utilityWindow: NSWindow = NSWindow()
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        let size: CGSize = CGSize(width: 1920 / window.backingScaleFactor, height: 1080 / window.backingScaleFactor)
-        window.setContentSize(size)
-        window.styleMask = [.closable, .miniaturizable, .titled]
-        window.delegate = windowDelegate
-        window.title = "SyphonWeb"
+  let mainWindowDelegate: WindowDelegate = WindowDelegate()
+  let utilityWindowDelegate: WindowDelegate = WindowDelegate()
 
-        let view: NSHostingView<MainView> = NSHostingView(rootView: MainView())
-        view.frame = CGRect(origin: .zero, size: size)
-        view.autoresizingMask = [.height, .width]
-        window.contentView!.addSubview(view)
-        window.center()
-        window.makeKeyAndOrderFront(window)
-        
-        NSApp.setActivationPolicy(.regular)
-        NSApp.activate(ignoringOtherApps: true)
-    }
+  func applicationDidFinishLaunching(_ notification: Notification) {
+
+    // Main Window
+    let mainSize: CGSize = CGSize(
+      width: 1920 / mainWindow.backingScaleFactor, height: 1080 / mainWindow.backingScaleFactor)
+    mainWindow.setContentSize(mainSize)
+    mainWindow.styleMask = [.closable, .miniaturizable, .titled]
+    mainWindow.delegate = mainWindowDelegate
+    mainWindow.title = "SyphonWeb"
+
+    let mainView: NSHostingView<MainView> = NSHostingView(rootView: MainView())
+    mainView.frame = CGRect(origin: .zero, size: mainSize)
+    mainView.autoresizingMask = [.height, .width]
+    mainWindow.contentView!.addSubview(mainView)
+    mainWindow.center()
+    mainWindow.makeKeyAndOrderFront(mainWindow)
+
+    // Utility Window
+    let utilitySize: CGSize = CGSize(
+      width: 800 / mainWindow.backingScaleFactor, height: 300 / mainWindow.backingScaleFactor)
+    utilityWindow.setContentSize(utilitySize)
+    utilityWindow.styleMask = [.titled]
+    utilityWindow.delegate = utilityWindowDelegate
+    utilityWindow.title = "Settings"
+
+    let utilityView: NSHostingView<UtilityView> = NSHostingView(rootView: UtilityView())
+    utilityView.frame = CGRect(
+      origin: .zero,
+      size: utilitySize)
+    utilityWindow.contentView!.addSubview(utilityView)
+    utilityWindow.makeKeyAndOrderFront(utilityWindow)
+
+    NSApp.setActivationPolicy(.regular)
+    NSApp.activate(ignoringOtherApps: true)
+  }
 }
 
 // Start!
-let app = NSApplication.shared
-let delegate = AppDelegate()
+let app: NSApplication = NSApplication.shared
+let delegate: AppDelegate = AppDelegate()
 app.delegate = delegate
 app.run()
