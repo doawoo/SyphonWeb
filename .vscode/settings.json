@@ -1,0 +1,19 @@
+{
+  // This is simply a massive hack to get Swift's LSP to function properly
+  // I really didn't want to use XCode and the only way to get Sourcekit LSP to index stuff properly
+  // was to move around the include directories in the Synphon.xcframework, then add all these flags. Fun!
+  "swift.sourcekit-lsp.serverArguments": [
+    "-Xswiftc",
+    "-F",
+    "-Xswiftc",
+    "./third_party",
+    "-Xcc",
+    "-fmodule-map-file=./third_party/Syphon.xcframework/macos-arm64_x86_64/Syphon.framework/Modules/module.modulemap",
+    "-Xcc",
+    "-I./third_party/Syphon.xcframework/macos-arm64_x86_64/Syphon.framework/Headers/",
+    "-Xswiftc",
+    "-import-objc-header",
+    "-Xswiftc",
+    "./Sources/SyphonWeb/SyphonWeb-Bridging-Header.h"
+  ]
+}

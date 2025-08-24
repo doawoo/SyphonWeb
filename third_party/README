@@ -1,0 +1,3 @@
+The contents of this directory are a compiled framework of the Syphon-Framework at commit `b834acdb90071d09785c3eb9ab0f35e8a8f3fe42`.
+
+It has been converted into a `.xcframework` so I can use it outside of Xcode and use a plain ol' Swift Package Manager project. Additionally, the module map had been changed around to account for the header directory changes.

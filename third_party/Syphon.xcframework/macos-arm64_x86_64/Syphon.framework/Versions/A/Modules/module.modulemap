@@ -1,0 +1,20 @@
+//
+//  Syphon.modulemap
+//  Syphon
+//
+//  Created by Tom Butterworth on 03/10/2023.
+//
+
+framework module Syphon {
+    umbrella header "Syphon/Syphon.h"
+
+    export *
+    module * {
+        export *
+    }
+
+    explicit module SyphonSubclassing {
+        header "Syphon/SyphonSubclassing.h"
+        export *
+    }
+}

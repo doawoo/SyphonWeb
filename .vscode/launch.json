@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:SyphonWeb}",
+      "name": "Debug SyphonWeb",
+      "program": "${workspaceFolder:SyphonWeb}/.build/debug/SyphonWeb",
+      "preLaunchTask": "swift: Build Debug SyphonWeb"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:SyphonWeb}",
+      "name": "Release SyphonWeb",
+      "program": "${workspaceFolder:SyphonWeb}/.build/release/SyphonWeb",
+      "preLaunchTask": "swift: Build Release SyphonWeb"
+    }
+  ]
+}
