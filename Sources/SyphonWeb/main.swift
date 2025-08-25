@@ -3,6 +3,11 @@ import MetalKit
 import SwiftUI
 import Syphon
 
+var activity: NSObjectProtocol?
+activity = ProcessInfo().beginActivity(options: ProcessInfo.ActivityOptions.userInitiated, reason: "No Napping!")
+
+let viewWidth = 1280.0
+let viewHeight = 720.0
 let metalDevice: MTLDevice = MTLCreateSystemDefaultDevice()!
 let server: SyphonMetalServer = SyphonMetalServer.init(name: "SyphonWeb", device: metalDevice)
 
@@ -26,13 +31,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Main Window
     let mainSize: CGSize = CGSize(
-      width: 1920 / mainWindow.backingScaleFactor, height: 1080 / mainWindow.backingScaleFactor)
+      width: viewWidth, height: viewHeight)
     mainWindow.setContentSize(mainSize)
     mainWindow.styleMask = [.closable, .miniaturizable, .titled]
     mainWindow.delegate = mainWindowDelegate
     mainWindow.title = "SyphonWeb"
 
+    // Create state object and init Metal objects
     let state: WebViewState = WebViewState()
+    state.frameServer = server
+    state.initMetal(width: viewWidth / mainWindow.backingScaleFactor, height: viewHeight / mainWindow.backingScaleFactor, scaleFactor: mainWindow.backingScaleFactor)
+
     let mainViewInst = MainView(state: state)
     let mainView: NSHostingView<MainView> = NSHostingView(rootView: mainViewInst)
     mainView.frame = CGRect(origin: .zero, size: mainSize)
