@@ -5,6 +5,13 @@ struct MainView: View {
   @ObservedObject var state: WebViewState
   @State private var bookmarks: [Bookmark] = Bookmark.getAll()
   @State private var selectedBookmark: Bookmark?
+  @State private var showAddBookmark: Bool = false
+
+  @State private var showDeleteConfirm: Bool = false
+  @State private var bookmarkToDelete: Bookmark?
+
+  @State private var newBookmarkName: String = ""
+  @State private var newBookmarkUrl: String = ""
 
   var body: some View {
     HSplitView {
@@ -36,17 +43,26 @@ struct MainView: View {
         .safeAreaInset(edge: .bottom) {
           VStack {
             Button(action: {
-              // TODO: Add bookmark to database
+              showAddBookmark = true
             }) {
               Label("Add", systemImage: "plus")
             }
           }.padding()
             .frame(maxWidth: .infinity, alignment: .leading)
+            .popover(isPresented: $showAddBookmark) {
+              makeAddBookmarkView()
+            }
         }.frame(width: 200, alignment: .top)
       WebView(state: state).frame(
         minWidth: viewWidth, maxWidth: viewWidth,
         minHeight: viewHeight, maxHeight: viewHeight,
       ).scaleEffect(0.90)
+    }
+    .confirmationDialog("Really delete this bookmark?", isPresented: $showDeleteConfirm) {
+      Button("Yes") {
+        Bookmark.deleteBookmark(toDelete: bookmarkToDelete!)
+        refreshBookmarks()
+      }
     }
   }
 
@@ -67,6 +83,33 @@ struct MainView: View {
     bookmarks = Bookmark.getAll()
   }
 
+  @ViewBuilder func makeAddBookmarkView() -> some View {
+    VStack {
+      LabeledContent {
+        TextField("Name", text: $newBookmarkName)
+      } label: {
+        Text("Name")
+      }
+      Spacer()
+      LabeledContent {
+        TextField("http://...", text: $newBookmarkUrl)
+      } label: {
+        Text("URL")
+      }
+      Button("Create") {
+        let newBookmark = Bookmark(
+          id: 0, url: newBookmarkUrl, name: newBookmarkName, order: 0, favorite: false)
+        Bookmark.addNewBookmark(newBookmark: newBookmark)
+        refreshBookmarks()
+
+        // Clear state and hide popover
+        newBookmarkName = ""
+        newBookmarkUrl = ""
+        showAddBookmark = false
+      }
+    }.frame(minWidth: 250, alignment: .leading).padding(20)
+  }
+
   @ViewBuilder func makeBookmark(bookmark: Bookmark) -> some View {
     let systemImageName =
       if bookmark.favorite {
@@ -85,7 +128,15 @@ struct MainView: View {
     }.onTapGesture {
       selectedBookmark = bookmark
       navigateTo(urlString: bookmark.url)
-    }.tag(bookmark)
-
+    }
+    .tag(bookmark)
+    .contextMenu {
+      Button {
+        showDeleteConfirm = true
+        bookmarkToDelete = bookmark
+      } label: {
+        Label("Delete", systemImage: "trash")
+      }
+    }
   }
 }
