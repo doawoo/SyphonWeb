@@ -11,18 +11,6 @@ class Bookmark: Identifiable, Hashable {
   public var order: Int64
   public var favorite: Bool
 
-  nonisolated func hash(into hasher: inout Hasher) {
-    hasher.combine(self.id)
-    hasher.combine(self.url)
-    hasher.combine(self.name)
-    hasher.combine(self.order)
-    hasher.combine(self.favorite)
-  }
-
-  static func == (lhs: Bookmark, rhs: Bookmark) -> Bool {
-    lhs.id == rhs.id
-  }
-
   internal init(id: Int64, url: String, name: String, order: Int64, favorite: Bool) {
     self.id = id
     self.url = url
@@ -54,19 +42,77 @@ class Bookmark: Identifiable, Hashable {
     }
   }
 
+  // Hashable
+  nonisolated func hash(into hasher: inout Hasher) {
+    hasher.combine(self.id)
+    hasher.combine(self.url)
+    hasher.combine(self.name)
+    hasher.combine(self.order)
+    hasher.combine(self.favorite)
+  }
+
+  // Equality and sorting
+  static func == (lhs: Bookmark, rhs: Bookmark) -> Bool {
+    lhs.id == rhs.id
+  }
+
+  static func > (lhs: Bookmark, rhs: Bookmark) -> Bool {
+    lhs.order > rhs.order
+  }
+
+  static func < (lhs: Bookmark, rhs: Bookmark) -> Bool {
+    lhs.order < rhs.order
+  }
+
   public func toggleFavorite() {
     let bookmarks = Table("bookmarks")
     let id = SQLite.Expression<Int64>("id")
     let favorite = SQLite.Expression<Bool>("favorite")
     let mrk = bookmarks.filter(id == self.id)
 
-    let query = mrk.update(favorite <- !self.favorite)
+    self.favorite = !self.favorite
+    let query = mrk.update(favorite <- self.favorite)
+
     do {
       try databaseConn!.run(query)
     } catch {
       NSLog("Error updating bookmark favorite: \(error)")
     }
   }
+
+  public func updateName(newName: String) {
+    let bookmarks = Table("bookmarks")
+    let id = SQLite.Expression<Int64>("id")
+    let name = SQLite.Expression<String>("name")
+    let mrk = bookmarks.filter(id == self.id)
+
+    self.name = newName
+    let query = mrk.update(name <- self.name)
+    do {
+      try databaseConn!.run(query)
+      self.name = newName
+    } catch {
+      NSLog("Error updating bookmark name: \(error)")
+    }
+  }
+
+  public func updateUrl(newUrl: String) {
+    let bookmarks = Table("bookmarks")
+    let id = SQLite.Expression<Int64>("id")
+    let url = SQLite.Expression<String>("url")
+    let mrk = bookmarks.filter(id == self.id)
+
+    self.url = newUrl
+    let query = mrk.update(url <- self.url)
+    do {
+      try databaseConn!.run(query)
+      self.url = newUrl
+    } catch {
+      NSLog("Error updating bookmark URL: \(error)")
+    }
+  }
+
+  // Static utility functions
 
   public static func getAll() -> [Bookmark] {
     do {
@@ -102,6 +148,34 @@ class Bookmark: Identifiable, Hashable {
     } catch {
       NSLog("Error fetching bookmark from database: \(error)")
       return nil
+    }
+  }
+
+  public static func addNewBookmark(newBookmark: Bookmark) {
+    let bookmarks = SQLite.Table("bookmarks")
+    let order = SQLite.Expression<Int64>("order")
+    let name = SQLite.Expression<String>("name")
+    let url = SQLite.Expression<String>("url")
+    let favorite = SQLite.Expression<Bool>("favorite")
+    let query = bookmarks.insert(
+      order <- 0, name <- newBookmark.name, url <- newBookmark.url, favorite <- false)
+
+    do {
+      try databaseConn!.run(query)
+    } catch {
+      NSLog("Error creating bookmark: \(error)")
+    }
+  }
+
+  public static func deleteBookmark(toDelete: Bookmark) {
+    let bookmarks = SQLite.Table("bookmarks")
+    let id = SQLite.Expression<Int64>("id")
+    let query = bookmarks.filter(id == toDelete.id).delete()
+
+    do {
+      try databaseConn!.run(query)
+    } catch {
+      NSLog("Error deleting bookmark: \(error)")
     }
   }
 }
