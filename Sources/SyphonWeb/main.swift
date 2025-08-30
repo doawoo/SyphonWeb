@@ -58,8 +58,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     mainWindow.center()
     mainWindow.makeKeyAndOrderFront(mainWindow)
 
+    setupAppMenu()
+
     NSApp.setActivationPolicy(.regular)
     NSApp.activate(ignoringOtherApps: true)
+  }
+
+  private func setupAppMenu() {
+    let mainMenu = NSMenu()
+    let appMenuItem = NSMenuItem()
+    let appMenu = NSMenu()
+
+    appMenu.addItem(
+      NSMenuItem(
+        title: "About SyphonWeb", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
+        keyEquivalent: ""))
+    appMenu.addItem(NSMenuItem.separator())
+
+    appMenu.addItem(
+      NSMenuItem(
+        title: "Quit SyphonWeb", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+    )
+
+    appMenuItem.submenu = appMenu
+    mainMenu.addItem(appMenuItem)
+
+    NSApp.mainMenu = mainMenu
   }
 }
 
