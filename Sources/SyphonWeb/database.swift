@@ -38,7 +38,7 @@ func createBookmarkTable(db: Connection) {
     NSLog("Creating `bookmarks` table if not already present...")
     try db.run(
       bookmarkTable.create(ifNotExists: true) { table in
-        table.column(id, primaryKey: true)
+        table.column(id, primaryKey: .autoincrement)
         table.column(order)
         table.column(name)
         table.column(url)
